@@ -34,13 +34,13 @@ int main() {
             case STATE_PRE_SYNC:
                 if (syncTime >= 30) {
                 	currentState = STATE_SYNC;
-                	cycleCount = -2; // para leer en el 3er milisegundo de cada bit
+                	cycleCount = -2; // read in the 3rd millisecond
                 	}
                 break;
 
             case STATE_SYNC:
             	if(syncTime <= 80){
-            		if (cycleCount%5==0 && bitCount <= 10) { // lee en el 3er milisegundo
+            		if (cycleCount%5==0 && bitCount <= 10) { 
             			receivedData = (receivedData << 1) | pinValue;
             			bitCount++;
                 	}
