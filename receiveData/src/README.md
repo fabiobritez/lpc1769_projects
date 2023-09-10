@@ -41,7 +41,7 @@ En el estado sync se va a ir almacenando los bits recibidos en una variable.
 
 Como se lee el valor del pin cada 1ms se va tomar el valor del 3er ms de cada bit.
 
-``` mermaid copy
+``` 
      Duracion de 1 bit
     ___ ___ ___ ___ ___
 ___| 1 | 2 | 3 | 4 | 5 |___
