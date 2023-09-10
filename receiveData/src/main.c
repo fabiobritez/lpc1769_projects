@@ -15,15 +15,16 @@ volatile uint8_t cycleCount = 0;
 volatile uint8_t pinValue = 0;
 volatile uint8_t currentState = STATE_IDLE;
 
-void delay_ms(uint32_t delay);
+void delay_ms(uint32_t ms);
 void config_GPIO();
 void generatePWM(int data);
+void reset();
 
 int main() {
-    SysTick_Config(SystemCoreClock / 1000); // 1ms
+    SysTick_Config(SystemCoreClock / 1000);
 
     while (1) {
-    	syncTime = milliseconds - syncStartTime; // tiempo desde que detecta un 0
+    	syncTime = milliseconds - syncStartTime;
 
     	switch (currentState) {
             case STATE_IDLE:
@@ -64,7 +65,7 @@ int main() {
 /*Every 1ms*/
 void SysTick_Handler(void) {
     milliseconds++;
-    pinValue = (LPC_GPIO0->FIOPIN0 >> 0) & 1;
+    pinValue = (LPC_GPIO0->FIOPIN0 >> 0) & 1;  //get value from P0.0
 
     switch (currentState) {
         case STATE_IDLE:
@@ -74,7 +75,7 @@ void SysTick_Handler(void) {
             if (pinValue == 1) currentState = STATE_ERR_SYNC;
             break;
         case STATE_SYNC:
-        	cycleCount++;
+        	cycleCount++;	//
             break;
         case STATE_POST_SYNC:
         	if(pinValue == 1) currentState = STATE_ERR_SYNC;
@@ -84,18 +85,14 @@ void SysTick_Handler(void) {
 }
 
 void config_GPIO(){
-	LPC_PINCON -> PINSEL0 &= ~(0b11<<0);   //configuramos como GPIO P0.0
-	LPC_PINCON -> PINSEL0 &= ~(3<<2);     //configuramos como GPIO P0.2
+	LPC_PINCON -> PINSEL0 &= ~(0b11<<0);   // GPIO P0.0
+	LPC_PINCON -> PINSEL0 &= ~(3<<2);      // GPIO P0.2
 
-	LPC_GPIO0 -> FIODIR0 &= ~(0b11<<0);   //configuramos como entrada P0.0
-	LPC_GPIO0 -> FIODIR0 |= (3<<2);       //configuramos como salida P0.2
+	LPC_GPIO0 -> FIODIR0 &= ~(0b11<<0);    // input P0.0
+	LPC_GPIO0 -> FIODIR0 |= (3<<2);        // output P0.2
 
-	LPC_PINCON -> PINMODE0 |= (0b11<<0);  //habilitamos la pull_down a P0.0
-
-	LPC_GPIOINT -> IO0IntEnF |= 1;        //habilitamos por flanco de bajada en P0.2
+	LPC_PINCON -> PINMODE0 |= (0b11<<0);   // pull_up P0.0
 }
-
-
 
 void generatePWM(int data) {
     if (data > 1023) {
@@ -113,9 +110,9 @@ void generatePWM(int data) {
     delay_ms(offTime);
 }
 
-void delay_ms(uint32_t delay) {
+void delay_ms(uint32_t ms) {
     uint32_t startTime = milliseconds;
-    while (milliseconds - startTime < delay) {}
+    while ((milliseconds - startTime) < ms) {}
 }
 
 void reset() {
